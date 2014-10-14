@@ -1,0 +1,36 @@
+{
+  "name": "query2query",
+  "version": "1.0.0",
+  "description": "Simple tool for parsing a query string and converting it into tokens for use in a SQL query.",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --reporter spec"
+  },
+  "keywords": [
+    "url",
+    "query",
+    "string",
+    "sql"
+  ],
+  "author": "Chris Bartley <bartley@cmu.edu>",
+  "license": "GPL-2.0",
+  "devDependencies": {
+    "mocha": "^1.21.4",
+    "should": "^4.0.4"
+  },
+  "dependencies": {
+    "jsend-utils": "^1.0.1",
+    "string": "^2.1.0"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CMU-CREATE-Lab/query2query.git"
+  },
+  "bugs": {
+    "url": "https://github.com/CMU-CREATE-Lab/query2query/issues"
+  },
+  "homepage": "https://github.com/CMU-CREATE-Lab/query2query"
+}
