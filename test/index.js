@@ -103,7 +103,7 @@ describe("Query2Query", function() {
          var offset = 5;
          query2query.parse({
                               "fields" : "id,firstName,created",
-                              "limit" : "" + limit,
+                              "limit" :  "" + limit,
                               "offset" : "" + offset
                            }, function(err, queryParts) {
                               if (err) {
@@ -157,7 +157,7 @@ describe("Query2Query", function() {
    describe("Select specific fields", function() {
 
       it("Should be able to limit the selected fields", function(done) {
-         query2query.parse({"fields" : "id,firstName,created"}, function(err, queryParts) {
+         query2query.parse({ "fields" : "id,firstName,created" }, function(err, queryParts) {
                               if (err) {
                                  return done(err);
                               }
@@ -179,7 +179,7 @@ describe("Query2Query", function() {
       });
 
       it("Should ignore bogus selected fields", function(done) {
-         query2query.parse({"fields" : "id,foo,bar,bogus,created"}, function(err, queryParts) {
+         query2query.parse({ "fields" : "id,foo,bar,bogus,created" }, function(err, queryParts) {
                               if (err) {
                                  return done(err);
                               }
@@ -200,7 +200,7 @@ describe("Query2Query", function() {
       });
 
       it("Should skip duplicated fields", function(done) {
-         query2query.parse({"fields" : "id, id, created, id, created"}, function(err, queryParts) {
+         query2query.parse({ "fields" : "id, id, created, id, created" }, function(err, queryParts) {
                               if (err) {
                                  return done(err);
                               }
