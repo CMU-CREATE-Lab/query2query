@@ -71,13 +71,13 @@ function Query2Query() {
    };
 
    this.parse = function(queryString, callback, maxLimit) {
-      var result = this.parseSync(queryString, maxLimit);
+      var self = this;
       process.nextTick(function() {
-         if (result instanceof JSendClientValidationError) {
-            callback(result);
+         try {
+            callback(null, self.parseSync(queryString, maxLimit));
          }
-         else {
-            callback(null, result);
+         catch (e) {
+            callback(e);
          }
       });
    };
@@ -222,7 +222,7 @@ function Query2Query() {
 
       // see if there where validation errors
       if (validationErrors.length > 0) {
-         return new JSendClientValidationError("Query Validation Error", validationErrors);
+         throw new JSendClientValidationError("Query Validation Error", validationErrors);
       }
 
       // build the ORDER BY fields
