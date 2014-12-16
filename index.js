@@ -71,6 +71,18 @@ function Query2Query() {
    };
 
    this.parse = function(queryString, callback, maxLimit) {
+      var result = this.parseSync(queryString, maxLimit);
+      process.nextTick(function() {
+         if (result instanceof JSendClientValidationError) {
+            callback(result);
+         }
+         else {
+            callback(null, result);
+         }
+      });
+   };
+
+   this.parseSync = function(queryString, maxLimit) {
       maxLimit = Math.max(MIN_LIMIT, (maxLimit || DEFAULT_LIMIT));
 
       var validationErrors = [];
@@ -87,7 +99,7 @@ function Query2Query() {
 
       // helper method for collecting validation errors
       var addValidationError = function(message, data) {
-         validationErrors.push({message : message, data : data});
+         validationErrors.push({ message : message, data : data });
       };
 
       // helper methods for converting data types
@@ -130,7 +142,7 @@ function Query2Query() {
       // validate the WHERE join
       whereJoin = whereJoin[0].toUpperCase();
       if (VALID_WHERE_JOINS.indexOf(whereJoin) < 0) {
-         addValidationError("Invalid whereJoin value '" + whereJoin + "'.  Must be one of: " + VALID_WHERE_JOINS, {whereJoin : whereJoin});
+         addValidationError("Invalid whereJoin value '" + whereJoin + "'.  Must be one of: " + VALID_WHERE_JOINS, { whereJoin : whereJoin });
       }
 
       // parse the SELECT fields
@@ -174,7 +186,7 @@ function Query2Query() {
                                                                  }
                                                               }
                                                               else {
-                                                                 addValidationError("Field '" + field + "' cannot be compared with NULL", {field : field});
+                                                                 addValidationError("Field '" + field + "' cannot be compared with NULL", { field : field });
                                                               }
                                                            }
                                                            else {
@@ -185,7 +197,10 @@ function Query2Query() {
                                                            }
 
                                                            whereValues.push(value);
-                                                           return {field : field, expression : "(" + [field, operator, '?'].join(' ') + ")"};
+                                                           return {
+                                                              field : field,
+                                                              expression : "(" + [field, operator, '?'].join(' ') + ")"
+                                                           };
                                                         }
                                                      }
                                                      return null;
@@ -207,7 +222,7 @@ function Query2Query() {
 
       // see if there where validation errors
       if (validationErrors.length > 0) {
-         return callback(new JSendClientValidationError("Query Validation Error", validationErrors));
+         return new JSendClientValidationError("Query Validation Error", validationErrors);
       }
 
       // build the ORDER BY fields
@@ -236,7 +251,7 @@ function Query2Query() {
       var orderByStr = orderByFields.join(',');
       var orderByClause = (orderByFields.length > 0) ? "ORDER BY " + orderByStr : '';
 
-      return callback(null, {
+      return {
          select : select,
          selectClause : selectClause,
          selectFields : selectFields,
@@ -264,7 +279,7 @@ function Query2Query() {
             }
             return sqlParts.join(' ');
          }
-      });
+      };
    };
 
    var arrayify = function(o, willNotProcessSubTokens) {
