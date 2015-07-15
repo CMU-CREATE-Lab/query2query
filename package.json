@@ -19,7 +19,7 @@
     "should": "^7.0.2"
   },
   "dependencies": {
-    "jsend-utils": "^1.0.4",
+    "jsend-utils": "^1.0.5",
     "string": "^3.3.0"
   },
   "directories": {
