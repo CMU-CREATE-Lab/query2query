@@ -15,12 +15,12 @@
   "author": "Chris Bartley <bartley@cmu.edu>",
   "license": "GPL-2.0",
   "devDependencies": {
-    "mocha": "^1.21.4",
-    "should": "^4.0.4"
+    "mocha": "^2.2.5",
+    "should": "^7.0.2"
   },
   "dependencies": {
-    "jsend-utils": "^1.0.1",
-    "string": "^2.1.0"
+    "jsend-utils": "^1.0.4",
+    "string": "^3.3.0"
   },
   "directories": {
     "test": "test"
