@@ -1,38 +1,47 @@
-var util = require('util');
-var JSendClientValidationError = require('jsend-utils').JSendClientValidationError;
-var S = require('string');
+const JSendClientValidationError = require('jsend-utils').JSendClientValidationError;
 
-var MIN_OFFSET = 0;
-var MAX_OFFSET = Number.MAX_VALUE;
-var MIN_LIMIT = 1;
-var DEFAULT_LIMIT = 20;
+const MIN_OFFSET = 0;
+const MAX_OFFSET = Number.MAX_VALUE;
+const MIN_LIMIT = 1;
+const DEFAULT_LIMIT = 20;
 
-var TOKEN_SEPARATOR = ',';
-var WHERE_JOIN_AND = 'AND';
-var WHERE_JOIN_OR = 'OR';
-var DEFAULT_WHERE_JOIN = WHERE_JOIN_AND;
-var VALID_WHERE_JOINS = [WHERE_JOIN_AND, WHERE_JOIN_OR];
+const TOKEN_SEPARATOR = ',';
+const WHERE_JOIN_AND = 'AND';
+const WHERE_JOIN_OR = 'OR';
+const DEFAULT_WHERE_JOIN = WHERE_JOIN_AND;
+const VALID_WHERE_JOINS = [WHERE_JOIN_AND, WHERE_JOIN_OR];
 
 // allowed operators are <>, <=, >=, <, >, and =
-var WHERE_OPERERATORS_REGEX = /(<>|<=|>=|<|>|=)/;
+const WHERE_OPERERATORS_REGEX = /(<>|<=|>=|<|>|=)/;
 
-var NULL_VALUE = "__NULL__";
+const NULL_VALUE = "__NULL__";
 
-var DEFAULT_TOKEN_PROCESSOR = function(token) {
+const DEFAULT_TOKEN_PROCESSOR = function(token) {
    return {
       field : token,
       expression : token
    };
 };
 
+// heavily based on string's implementation...no need to depend on the string module for just this one thing
+const toBoolean = function(valStr) {
+   if (Object.prototype.toString.call(valStr) === "[object String]") {
+      const s = valStr.toLowerCase();
+      return s === 'true' || s === 'yes' || s === 'on' || s === '1';
+   }
+   else {
+      return valStr === true || valStr === 1;
+   }
+};
+
 function Query2Query() {
 
-   var allowedSelectFieldsArray = [];
-   var allowedSelectFields = {};
-   var allowedWhereFields = {};
-   var allowedOrderByFields = {};
-   var allowNullValue = {};
-   var dataTypes = {};
+   const allowedSelectFieldsArray = [];
+   const allowedSelectFields = {};
+   const allowedWhereFields = {};
+   const allowedOrderByFields = {};
+   const allowNullValue = {};
+   const dataTypes = {};
 
    this.addField = function(fieldName, allowWhere, allowOrderBy, canHaveNullValue, dataType) {
       if (typeof fieldName !== 'undefined' && fieldName != null) {
@@ -52,7 +61,7 @@ function Query2Query() {
                   // Don't bother recording the type for this field if it's a string--all the values will
                   // start out as strings since they come from the query string, so there's no conversion
                   // necessary
-                  if (dataType != Query2Query.types.STRING) {
+                  if (dataType !== Query2Query.types.STRING) {
                      dataTypes[fieldName] = dataType
                   }
                }
@@ -71,7 +80,7 @@ function Query2Query() {
    };
 
    this.parse = function(queryString, callback, maxLimit) {
-      var self = this;
+      const self = this;
       process.nextTick(function() {
          try {
             callback(null, self.parseSync(queryString, maxLimit));
@@ -85,51 +94,51 @@ function Query2Query() {
    this.parseSync = function(queryString, maxLimit) {
       maxLimit = Math.max(MIN_LIMIT, (maxLimit || DEFAULT_LIMIT));
 
-      var validationErrors = [];
-      var fields = arrayify(queryString.fields);
-      var whereAnd = arrayify(queryString.whereAnd, true);
-      var whereOr = arrayify(queryString.whereOr, true);
-      var whereJoin = arrayify(queryString.whereJoin || DEFAULT_WHERE_JOIN);
-      var orderBy = arrayify(queryString.orderBy);
-      var offset = parseIntAndEnforceBounds(queryString.offset, MIN_OFFSET, MIN_OFFSET, MAX_OFFSET);
-      var limit = parseIntAndEnforceBounds(queryString.limit, maxLimit, MIN_LIMIT, maxLimit);
+      const validationErrors = [];
+      const fields = arrayify(queryString.fields);
+      let whereAnd = arrayify(queryString.whereAnd, true);
+      const whereOr = arrayify(queryString.whereOr, true);
+      let whereJoin = arrayify(queryString.whereJoin || DEFAULT_WHERE_JOIN);
+      const orderBy = arrayify(queryString.orderBy);
+      const offset = parseIntAndEnforceBounds(queryString.offset, MIN_OFFSET, MIN_OFFSET, MAX_OFFSET);
+      const limit = parseIntAndEnforceBounds(queryString.limit, maxLimit, MIN_LIMIT, maxLimit);
 
       // where is a synonym for whereAnd, so just concatenate them
       whereAnd = whereAnd.concat(arrayify(queryString.where, true));
 
       // helper method for collecting validation errors
-      var addValidationError = function(message, data) {
+      const addValidationError = function(message, data) {
          validationErrors.push({ message : message, data : data });
       };
 
       // helper methods for converting data types
-      var dataTypeConverters = {};
+      const dataTypeConverters = {};
       dataTypeConverters[Query2Query.types.INTEGER] = function(fieldName, valStr) {
-         var val = S(valStr).toInt();
+         const val = Number.parseInt(valStr);
          if (isNaN(val)) {
             addValidationError("Failed to convert the value '" + valStr + "' of field '" + fieldName + "' to an integer");
          }
          return val;
       };
       dataTypeConverters[Query2Query.types.NUMBER] = function(fieldName, valStr) {
-         var val = S(valStr).toFloat();
+         const val = Number.parseFloat(valStr);
          if (isNaN(val)) {
             addValidationError("Failed to convert the value '" + valStr + "' of field '" + fieldName + "' to a number");
          }
          return val;
       };
       dataTypeConverters[Query2Query.types.BOOLEAN] = function(fieldName, valStr) {
-         return S(valStr).toBoolean();
+         return toBoolean(valStr);
       };
 
       dataTypeConverters[Query2Query.types.DATETIME] = function(fieldName, valStr) {
          // if the string contains a colon, assume it's something that Date.parse() can handle
-         var millis;
-         if (S(valStr).contains(':')) {
+         let millis;
+         if (valStr && valStr.indexOf(':') >= 0) {
             millis = Date.parse(valStr);
          }
          else {
-            millis = S(valStr).toFloat();
+            millis = Number.parseFloat(valStr);
          }
          if (isNaN(millis)) {
             addValidationError("Failed to convert the value '" + valStr + "' of field '" + fieldName + "' to a datetime");
@@ -146,69 +155,69 @@ function Query2Query() {
       }
 
       // parse the SELECT fields
-      var selectFields = processTokens(fields, allowedSelectFields);
+      let selectFields = processTokens(fields, allowedSelectFields);
       if (selectFields.length <= 0) {
          selectFields = selectFields.concat(allowedSelectFieldsArray);
       }
 
       // parse the WHERE expressions
-      var whereExpressions = [];
-      var whereValues = [];
-      var processWhereExpressions = function(groups, joinTerm) {
+      const whereExpressions = [];
+      const whereValues = [];
+      const processWhereExpressions = function(groups, joinTerm) {
          groups.forEach(function(expressionsGroup) {
-            var expressions = expressionsGroup.split(TOKEN_SEPARATOR);
-            var parsedExpressions = processTokens(expressions,
-                                                  allowedWhereFields,
-                                                  function(expression) {
-                                                     var expressionParts = expression.split(WHERE_OPERERATORS_REGEX);
-                                                     if (expressionParts.length == 3) {
+            const expressions = expressionsGroup.split(TOKEN_SEPARATOR);
+            const parsedExpressions = processTokens(expressions,
+                                                    allowedWhereFields,
+                                                    function(expression) {
+                                                       const expressionParts = expression.split(WHERE_OPERERATORS_REGEX);
+                                                       if (expressionParts.length === 3) {
 
-                                                        var field = expressionParts[0].trim();
+                                                          const field = expressionParts[0].trim();
 
-                                                        // first see whether this is even a field we should bother considering
-                                                        if (field in allowedWhereFields) {
-                                                           var operator = expressionParts[1].trim();
-                                                           var value = expressionParts[2].trim();
+                                                          // first see whether this is even a field we should bother considering
+                                                          if (field in allowedWhereFields) {
+                                                             let operator = expressionParts[1].trim();
+                                                             let value = expressionParts[2].trim();
 
-                                                           if (value.toUpperCase() == NULL_VALUE) {
-                                                              value = null;
+                                                             if (value.toUpperCase() === NULL_VALUE) {
+                                                                value = null;
 
-                                                              // see whether this field's value is allowed to be null
-                                                              if (allowNullValue[field]) {
-                                                                 if (operator == '=') {
-                                                                    operator = "IS"
-                                                                 }
-                                                                 else if (operator == '<>') {
-                                                                    operator = "IS NOT"
-                                                                 }
-                                                                 else {
-                                                                    addValidationError("Invalid WHERE operator '" + operator + "' when comparing with NULL.  Must be '=' or '<>'.");
-                                                                 }
-                                                              }
-                                                              else {
-                                                                 addValidationError("Field '" + field + "' cannot be compared with NULL", { field : field });
-                                                              }
-                                                           }
-                                                           else {
-                                                              // value isn't NULL, so now check whether it's of the correct data type
-                                                              if (field in dataTypes) {
-                                                                 value = dataTypeConverters[dataTypes[field]](field, value);
-                                                              }
-                                                           }
+                                                                // see whether this field's value is allowed to be null
+                                                                if (allowNullValue[field]) {
+                                                                   if (operator === '=') {
+                                                                      operator = "IS"
+                                                                   }
+                                                                   else if (operator === '<>') {
+                                                                      operator = "IS NOT"
+                                                                   }
+                                                                   else {
+                                                                      addValidationError("Invalid WHERE operator '" + operator + "' when comparing with NULL.  Must be '=' or '<>'.");
+                                                                   }
+                                                                }
+                                                                else {
+                                                                   addValidationError("Field '" + field + "' cannot be compared with NULL", { field : field });
+                                                                }
+                                                             }
+                                                             else {
+                                                                // value isn't NULL, so now check whether it's of the correct data type
+                                                                if (field in dataTypes) {
+                                                                   value = dataTypeConverters[dataTypes[field]](field, value);
+                                                                }
+                                                             }
 
-                                                           whereValues.push(value);
-                                                           return {
-                                                              field : field,
-                                                              expression : "(" + [field, operator, '?'].join(' ') + ")"
-                                                           };
-                                                        }
-                                                     }
-                                                     return null;
-                                                  },
-                                                  true);
+                                                             whereValues.push(value);
+                                                             return {
+                                                                field : field,
+                                                                expression : "(" + [field, operator, '?'].join(' ') + ")"
+                                                             };
+                                                          }
+                                                       }
+                                                       return null;
+                                                    },
+                                                    true);
             if (parsedExpressions.length > 0) {
-               var parsedExpressionsStr = parsedExpressions.join(" " + joinTerm + " ");
-               if (parsedExpressions.length == 1) {
+               const parsedExpressionsStr = parsedExpressions.join(" " + joinTerm + " ");
+               if (parsedExpressions.length === 1) {
                   whereExpressions.push(parsedExpressionsStr);
                }
                else {
@@ -226,14 +235,14 @@ function Query2Query() {
       }
 
       // build the ORDER BY fields
-      var orderByFields = processTokens(orderBy, allowedOrderByFields, function(token) {
-         var fieldAndExpression = {
+      const orderByFields = processTokens(orderBy, allowedOrderByFields, function(token) {
+         const fieldAndExpression = {
             field : token,
             expression : token
          };
 
          // if the token starts with a dash, then we want the expression to be "[FIELD] DESC"
-         if (token.indexOf('-') == 0) {
+         if (token.indexOf('-') === 0) {
             fieldAndExpression.field = token.slice(1).trim();   // trim off the dash, leaving us with just the field
             fieldAndExpression.expression = fieldAndExpression.field + " DESC"
          }
@@ -242,15 +251,16 @@ function Query2Query() {
       });
 
       // finally, build the various parts of the query
-      var select = selectFields.join(',');
-      var selectClause = "SELECT " + select;
+      const select = selectFields.join(',');
+      const selectClause = "SELECT " + select;
 
-      var where = whereExpressions.join(' ' + whereJoin + ' ');
-      var whereClause = (whereValues.length > 0) ? "WHERE " + where : '';
+      const where = whereExpressions.join(' ' + whereJoin + ' ');
+      const whereClause = (whereValues.length > 0) ? "WHERE " + where : '';
 
-      var orderByStr = orderByFields.join(',');
-      var orderByClause = (orderByFields.length > 0) ? "ORDER BY " + orderByStr : '';
+      const orderByStr = orderByFields.join(',');
+      const orderByClause = (orderByFields.length > 0) ? "ORDER BY " + orderByStr : '';
 
+      // noinspection JSUnusedGlobalSymbols
       return {
          select : select,
          selectClause : selectClause,
@@ -273,7 +283,7 @@ function Query2Query() {
          sql : function(tableName, willExcludeOffsetAndLimit) {
             willExcludeOffsetAndLimit = !!willExcludeOffsetAndLimit;
 
-            var sqlParts = [this.selectClause, "FROM " + tableName, this.whereClause, this.orderByClause];
+            const sqlParts = [this.selectClause, "FROM " + tableName, this.whereClause, this.orderByClause];
             if (!willExcludeOffsetAndLimit) {
                sqlParts.push(this.limitClause);
             }
@@ -282,17 +292,17 @@ function Query2Query() {
       };
    };
 
-   var arrayify = function(o, willNotProcessSubTokens) {
+   const arrayify = function(o, willNotProcessSubTokens) {
       willNotProcessSubTokens = !!willNotProcessSubTokens;
-      var argType = typeof o;
+      const argType = typeof o;
       if (argType !== 'undefined' && o != null) {
-         if (util.isArray(o)) {
+         if (Array.isArray(o)) {
             // see if the array elements need to be split into tokens
             if (willNotProcessSubTokens) {
                return o;
             }
             else {
-               var tokens = [];
+               let tokens = [];
                o.forEach(function(token) {
                   tokens = tokens.concat(token.split(TOKEN_SEPARATOR));
                });
@@ -309,16 +319,16 @@ function Query2Query() {
       return [];
    };
 
-   var parseIntAndEnforceBounds = function(str, defaultValue, min, max) {
+   const parseIntAndEnforceBounds = function(str, defaultValue, min, max) {
       if (typeof str === 'string' || typeof str === 'number') {
-         var num = parseInt(str, 10);
+         let num = parseInt(str, 10);
          num = isNaN(num) ? defaultValue : num;
          return Math.min(Math.max(min, num), max);
       }
       return defaultValue;
    };
 
-   var processTokens = function(tokens, allowedFields, tokenProcessor, willAllowFieldMultiples) {
+   const processTokens = function(tokens, allowedFields, tokenProcessor, willAllowFieldMultiples) {
       // use the default token processor if undefined
       if (typeof tokenProcessor !== 'function') {
          tokenProcessor = DEFAULT_TOKEN_PROCESSOR;
@@ -327,21 +337,21 @@ function Query2Query() {
       willAllowFieldMultiples = !!willAllowFieldMultiples;
 
       // array for storing the created expressions
-      var expressions = [];
+      const expressions = [];
 
       // the map helps us keep track of which fields we've already considered (we don't want to allow dupes)
-      var fieldMap = {};
+      const fieldMap = {};
 
       // process the tokens into expressions
       tokens.forEach(function(token) {
          token = token.trim();
          if (token.length > 0) {
             // process the token into the base field and the associated expression
-            var fieldAndExpression = tokenProcessor(token);
+            const fieldAndExpression = tokenProcessor(token);
 
             if (fieldAndExpression) {
                // get the field
-               var field = fieldAndExpression.field;
+               const field = fieldAndExpression.field;
 
                // have we already considered this field?
                if (willAllowFieldMultiples || !(field in fieldMap)) {
@@ -361,12 +371,12 @@ function Query2Query() {
    };
 }
 
-Query2Query.types = {
-   INTEGER : 'INTEGER',
-   NUMBER : 'NUMBER',
-   STRING : 'STRING',
-   DATETIME : 'DATETIME',
-   BOOLEAN : 'BOOLEAN'
-};
+Query2Query.types = Object.freeze({
+                                     INTEGER : 'INTEGER',
+                                     NUMBER : 'NUMBER',
+                                     STRING : 'STRING',
+                                     DATETIME : 'DATETIME',
+                                     BOOLEAN : 'BOOLEAN'
+                                  });
 
 module.exports = Query2Query;

@@ -1,13 +1,13 @@
-var assert = require('assert');
-var should = require('should');
-var Query2Query = require('../index');
+const assert = require('assert');
+const should = require('should');
+const Query2Query = require('../index');
 
-var DEFAULT_MIN_LIMIT = 1;
-var DEFAULT_MAX_LIMIT = 20;
+const DEFAULT_MIN_LIMIT = 1;
+const DEFAULT_MAX_LIMIT = 20;
 
 describe("Query2Query", function() {
 
-   var query2query;
+   let query2query;
 
    before(function(initDone) {
       query2query = new Query2Query();
@@ -31,11 +31,11 @@ describe("Query2Query", function() {
    });
 
    describe("Empty query string", function() {
-      var verify = function(err, queryParts, maxLimit, done) {
+      const verify = function(err, queryParts, maxLimit, done) {
          if (err) {
             return done(err);
          }
-         assert.notEqual(queryParts, null);
+         assert.notStrictEqual(queryParts, null);
          queryParts.should.have.property('selectFields', ['id',
                                                           'firstName',
                                                           'lastName',
@@ -49,7 +49,8 @@ describe("Query2Query", function() {
          queryParts.should.have.property('whereJoin', "AND");
          queryParts.should.have.property('offset', 0);
          queryParts.should.have.property('limit', maxLimit);
-         assert.equal(queryParts.sql("Users"), "SELECT id,firstName,lastName,favoriteStory,favoriteNumber,likesPickles,created FROM Users   LIMIT 0," + maxLimit);
+         // noinspection SqlResolve,SqlNoDataSourceInspection
+         assert.strictEqual(queryParts.sql("Users"), 'SELECT id,firstName,lastName,favoriteStory,favoriteNumber,likesPickles,created FROM Users   LIMIT 0,' + maxLimit);
 
          done();
       };
@@ -61,7 +62,7 @@ describe("Query2Query", function() {
       });
 
       it("Should be able to parse an empty query string (max limit of 50)", function(done) {
-         var maxLimit = 50;
+         const maxLimit = 50;
          query2query.parse("", function(err, queryParts) {
                               verify(err, queryParts, maxLimit, done);
                            },
@@ -73,7 +74,7 @@ describe("Query2Query", function() {
    describe("Specify limit and offset", function() {
 
       it("Should be able to limit the number of returned records", function(done) {
-         var limit = 13;
+         const limit = 13;
          query2query.parse({
                               "fields" : "id,firstName,created",
                               "limit" : "" + limit
@@ -81,7 +82,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'firstName',
                                                                                'created']);
@@ -91,7 +92,8 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "AND");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', limit);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users   LIMIT 0," + limit);
+                              // noinspection SqlResolve,SqlNoDataSourceInspection
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users   LIMIT 0," + limit);
 
                               done();
                            }
@@ -99,17 +101,17 @@ describe("Query2Query", function() {
       });
 
       it("Should be able to limit the number of returned records and set the offset", function(done) {
-         var limit = 13;
-         var offset = 5;
+         const limit = 13;
+         const offset = 5;
          query2query.parse({
                               "fields" : "id,firstName,created",
-                              "limit" :  "" + limit,
+                              "limit" : "" + limit,
                               "offset" : "" + offset
                            }, function(err, queryParts) {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'firstName',
                                                                                'created']);
@@ -119,7 +121,8 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "AND");
                               queryParts.should.have.property('offset', offset);
                               queryParts.should.have.property('limit', limit);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users   LIMIT " + offset + "," + limit);
+                              // noinspection SqlResolve,SqlNoDataSourceInspection
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users   LIMIT " + offset + "," + limit);
 
                               done();
                            }
@@ -135,7 +138,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'firstName',
                                                                                'created']);
@@ -145,7 +148,7 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "AND");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', DEFAULT_MIN_LIMIT);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users   LIMIT 0," + DEFAULT_MIN_LIMIT);
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users   LIMIT 0," + DEFAULT_MIN_LIMIT);
 
                               done();
                            }
@@ -161,7 +164,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'firstName',
                                                                                'created']);
@@ -171,7 +174,8 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "AND");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', DEFAULT_MAX_LIMIT);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users   LIMIT 0," + DEFAULT_MAX_LIMIT);
+                              // noinspection SqlResolve,SqlNoDataSourceInspection
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users   LIMIT 0," + DEFAULT_MAX_LIMIT);
 
                               done();
                            }
@@ -183,7 +187,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'created']);
                               queryParts.should.have.property('whereExpressions', []);
@@ -192,7 +196,8 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "AND");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', DEFAULT_MAX_LIMIT);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,created FROM Users   LIMIT 0," + DEFAULT_MAX_LIMIT);
+                              // noinspection SqlResolve,SqlNoDataSourceInspection
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,created FROM Users   LIMIT 0," + DEFAULT_MAX_LIMIT);
 
                               done();
                            }
@@ -204,7 +209,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'created']);
                               queryParts.should.have.property('whereExpressions', []);
@@ -213,7 +218,8 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "AND");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', DEFAULT_MAX_LIMIT);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,created FROM Users   LIMIT 0," + DEFAULT_MAX_LIMIT);
+                              // noinspection SqlResolve,SqlNoDataSourceInspection
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,created FROM Users   LIMIT 0," + DEFAULT_MAX_LIMIT);
 
                               done();
                            }
@@ -232,7 +238,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'firstName',
                                                                                'created']);
@@ -242,7 +248,8 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "AND");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', DEFAULT_MAX_LIMIT);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users  ORDER BY created LIMIT 0," + DEFAULT_MAX_LIMIT);
+                              // noinspection SqlResolve,SqlNoDataSourceInspection
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users  ORDER BY created LIMIT 0," + DEFAULT_MAX_LIMIT);
 
                               done();
                            }
@@ -257,7 +264,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'firstName',
                                                                                'created']);
@@ -267,7 +274,8 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "AND");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', DEFAULT_MAX_LIMIT);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users  ORDER BY created LIMIT 0," + DEFAULT_MAX_LIMIT);
+                              // noinspection SqlResolve,SqlNoDataSourceInspection
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users  ORDER BY created LIMIT 0," + DEFAULT_MAX_LIMIT);
 
                               done();
                            }
@@ -282,7 +290,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'firstName',
                                                                                'created']);
@@ -292,7 +300,8 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "AND");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', DEFAULT_MAX_LIMIT);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users  ORDER BY created,id,firstName LIMIT 0," + DEFAULT_MAX_LIMIT);
+                              // noinspection SqlResolve,SqlNoDataSourceInspection
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users  ORDER BY created,id,firstName LIMIT 0," + DEFAULT_MAX_LIMIT);
 
                               done();
                            }
@@ -307,7 +316,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'firstName',
                                                                                'created']);
@@ -317,7 +326,8 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "AND");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', DEFAULT_MAX_LIMIT);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users  ORDER BY created,id LIMIT 0," + DEFAULT_MAX_LIMIT);
+                              // noinspection SqlResolve,SqlNoDataSourceInspection
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users  ORDER BY created,id LIMIT 0," + DEFAULT_MAX_LIMIT);
 
                               done();
                            }
@@ -332,7 +342,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'firstName',
                                                                                'created']);
@@ -342,7 +352,8 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "AND");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', DEFAULT_MAX_LIMIT);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users  ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
+                              // noinspection SqlResolve,SqlNoDataSourceInspection
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,firstName,created FROM Users  ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
 
                               done();
                            }
@@ -362,7 +373,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'firstName',
                                                                                'created']);
@@ -372,10 +383,10 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "AND");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', DEFAULT_MAX_LIMIT);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,firstName,created " +
-                                                                    "FROM Users " +
-                                                                    "WHERE (id = ?) " +
-                                                                    "ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,firstName,created " +
+                                                                          "FROM Users " +
+                                                                          "WHERE (id = ?) " +
+                                                                          "ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
 
                               done();
                            }
@@ -391,7 +402,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'firstName',
                                                                                'created']);
@@ -401,10 +412,10 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "AND");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', DEFAULT_MAX_LIMIT);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,firstName,created " +
-                                                                    "FROM Users " +
-                                                                    "WHERE (id = ?) " +
-                                                                    "ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,firstName,created " +
+                                                                          "FROM Users " +
+                                                                          "WHERE (id = ?) " +
+                                                                          "ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
 
                               done();
                            }
@@ -420,7 +431,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'firstName',
                                                                                'created']);
@@ -430,10 +441,10 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "AND");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', DEFAULT_MAX_LIMIT);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,firstName,created " +
-                                                                    "FROM Users " +
-                                                                    "WHERE ((id > ?) AND (id < ?)) " +
-                                                                    "ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,firstName,created " +
+                                                                          "FROM Users " +
+                                                                          "WHERE ((id > ?) AND (id < ?)) " +
+                                                                          "ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
 
                               done();
                            }
@@ -449,7 +460,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'firstName',
                                                                                'created']);
@@ -459,10 +470,10 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "AND");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', DEFAULT_MAX_LIMIT);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,firstName,created " +
-                                                                    "FROM Users " +
-                                                                    "WHERE (id > ?) AND (id < ?) " +
-                                                                    "ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,firstName,created " +
+                                                                          "FROM Users " +
+                                                                          "WHERE (id > ?) AND (id < ?) " +
+                                                                          "ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
 
                               done();
                            }
@@ -478,7 +489,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'firstName',
                                                                                'created']);
@@ -488,10 +499,10 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "AND");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', DEFAULT_MAX_LIMIT);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,firstName,created " +
-                                                                    "FROM Users " +
-                                                                    "WHERE (id > ?) AND (id < ?) AND (lastName IS ?) " +
-                                                                    "ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,firstName,created " +
+                                                                          "FROM Users " +
+                                                                          "WHERE (id > ?) AND (id < ?) AND (lastName IS ?) " +
+                                                                          "ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
 
                               done();
                            }
@@ -508,7 +519,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'firstName',
                                                                                'created']);
@@ -518,10 +529,10 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "OR");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', DEFAULT_MAX_LIMIT);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,firstName,created " +
-                                                                    "FROM Users " +
-                                                                    "WHERE (id > ?) OR (id < ?) " +
-                                                                    "ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,firstName,created " +
+                                                                          "FROM Users " +
+                                                                          "WHERE (id > ?) OR (id < ?) " +
+                                                                          "ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
 
                               done();
                            }
@@ -538,7 +549,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'firstName',
                                                                                'created']);
@@ -549,10 +560,10 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "AND");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', DEFAULT_MAX_LIMIT);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,firstName,created " +
-                                                                    "FROM Users " +
-                                                                    "WHERE ((id > ?) AND (id < ?)) AND ((firstName = ?) OR (firstName = ?) OR (likesPickles = ?)) " +
-                                                                    "ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,firstName,created " +
+                                                                          "FROM Users " +
+                                                                          "WHERE ((id > ?) AND (id < ?)) AND ((firstName = ?) OR (firstName = ?) OR (likesPickles = ?)) " +
+                                                                          "ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
 
                               done();
                            }
@@ -570,7 +581,7 @@ describe("Query2Query", function() {
                               if (err) {
                                  return done(err);
                               }
-                              assert.notEqual(queryParts, null);
+                              assert.notStrictEqual(queryParts, null);
                               queryParts.should.have.property('selectFields', ['id',
                                                                                'firstName',
                                                                                'created']);
@@ -581,10 +592,10 @@ describe("Query2Query", function() {
                               queryParts.should.have.property('whereJoin', "OR");
                               queryParts.should.have.property('offset', 0);
                               queryParts.should.have.property('limit', DEFAULT_MAX_LIMIT);
-                              assert.equal(queryParts.sql("Users"), "SELECT id,firstName,created " +
-                                                                    "FROM Users " +
-                                                                    "WHERE ((id <> ?) AND (id < ?) AND (likesPickles = ?)) OR ((firstName = ?) OR (firstName = ?)) " +
-                                                                    "ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
+                              assert.strictEqual(queryParts.sql("Users"), "SELECT id,firstName,created " +
+                                                                          "FROM Users " +
+                                                                          "WHERE ((id <> ?) AND (id < ?) AND (likesPickles = ?)) OR ((firstName = ?) OR (firstName = ?)) " +
+                                                                          "ORDER BY created,id DESC LIMIT 0," + DEFAULT_MAX_LIMIT);
 
                               done();
                            }
@@ -599,8 +610,8 @@ describe("Query2Query", function() {
                               "whereJoin" : "bogus",
                               "orderBy" : "created, -id"
                            }, function(err, queryParts) {
-                              assert.notEqual(err, null);
-                              assert.equal(queryParts, null);
+                              err.should.not.be.null();
+                              should.equal(queryParts, null);
 
                               err.should.have.property('message');
                               err.should.have.property('data');
@@ -617,8 +628,8 @@ describe("Query2Query", function() {
                               "fields" : "id,firstName,created",
                               "where" : ["id<>NULL"]
                            }, function(err, queryParts) {
-                              assert.notEqual(err, null);
-                              assert.equal(queryParts, null);
+                              err.should.not.be.null();
+                              should.equal(queryParts, null);
 
                               err.should.have.property('message');
                               err.should.have.property('data');
@@ -635,8 +646,8 @@ describe("Query2Query", function() {
                               "fields" : "id,firstName,created",
                               "where" : ["id=foo"]
                            }, function(err, queryParts) {
-                              assert.notEqual(err, null);
-                              assert.equal(queryParts, null);
+                              err.should.not.be.null();
+                              should.equal(queryParts, null);
 
                               err.should.have.property('message');
                               err.should.have.property('data');
@@ -653,8 +664,8 @@ describe("Query2Query", function() {
                               "fields" : "id,firstName,created",
                               "where" : ["favoriteNumber=foo"]
                            }, function(err, queryParts) {
-                              assert.notEqual(err, null);
-                              assert.equal(queryParts, null);
+                              err.should.not.be.null();
+                              should.equal(queryParts, null);
 
                               err.should.have.property('message');
                               err.should.have.property('data');
@@ -671,8 +682,8 @@ describe("Query2Query", function() {
                               "fields" : "id,firstName,created",
                               "where" : ["created=foo"]
                            }, function(err, queryParts) {
-                              assert.notEqual(err, null);
-                              assert.equal(queryParts, null);
+                              err.should.not.be.null();
+                              should.equal(queryParts, null);
 
                               err.should.have.property('message');
                               err.should.have.property('data');

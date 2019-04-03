@@ -1,6 +1,6 @@
 {
   "name": "query2query",
-  "version": "1.3.1",
+  "version": "2.0.0",
   "description": "Simple tool for parsing a query string and converting it into tokens for use in a SQL query.",
   "main": "index.js",
   "scripts": {
@@ -15,12 +15,11 @@
   "author": "Chris Bartley <bartley@cmu.edu>",
   "license": "GPL-2.0",
   "devDependencies": {
-    "mocha": "^2.2.5",
-    "should": "^7.0.2"
+    "mocha": "^6.0.2",
+    "should": "^13.2.3"
   },
   "dependencies": {
-    "jsend-utils": "^1.0.5",
-    "string": "^3.3.0"
+    "jsend-utils": "^2.0.0"
   },
   "directories": {
     "test": "test"
