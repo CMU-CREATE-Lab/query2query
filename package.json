@@ -1,6 +1,6 @@
 {
   "name": "query2query",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Simple tool for parsing a query string and converting it into tokens for use in a SQL query.",
   "main": "index.js",
   "scripts": {
