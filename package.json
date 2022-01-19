@@ -16,11 +16,11 @@
   "license": "GPL-2.0",
   "devDependencies": {
     "jsdoc": "^3.6.7",
-    "mocha": "^9.1.3",
+    "mocha": "^9.1.4",
     "should": "^13.2.3"
   },
   "dependencies": {
-    "jsend-utils": "^2.0.0"
+    "jsend-utils": "^3.0.3"
   },
   "directories": {
     "test": "test"
